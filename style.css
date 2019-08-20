@@ -1,0 +1,22 @@
+body{
+	background: black;
+}
+
+/*上の帯の背景色*/
+.bg-dark-red{
+	background: #9e0707;
+}
+
+/*検索ボタン*/
+.btn-dark-red{
+	color: #fff;
+	background: #9e0707;
+}
+.btn-dark-red:hover{
+	background: #8c0707;
+}
+
+/*1つの画像だけで画面半分は取らないように*/
+img{
+	max-width:50%;
+}
