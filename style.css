@@ -16,7 +16,7 @@ body{
 	background: #8c0707;
 }
 
-/*1つの画像だけで画面半分は取らないように*/
+/*画像の最大幅*/
 img{
-	max-width:50%;
+	max-width:75%;
 }

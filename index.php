@@ -5,7 +5,7 @@ require_once('phpQuery.php'); // phpQueryの読み込み
 if($_GET['word']){ 
   $word = $_GET['word']; // ユーザーが入力した単語
 }else{
-  $word = '料理';
+  $word = '';
 }
 
 ?> <!-- ヘッダー読み込み -->
@@ -16,7 +16,7 @@ if($_GET['word']){
     <h4 class='my-2 text-light'>
       無限食欲
     </h4>
-    <p class='text-light mb-0'>〜 食欲を開放しよう！ 〜</p>
+    <p class='text-light mb-0'>〜 GIF画像を見て、食欲を開放しよう！ 〜</p>
   </div>
 </nav>
 
@@ -26,7 +26,7 @@ if($_GET['word']){
   <form action='./' method='get'>
     <div class='form-gruop row mx-lg-0'>
 
-      <input name='word' value='<?php echo $word ?>' class='form-control col-12 col-lg-4' placeholder='単語を入力'>　<!-- 既に単語入ってたらそれを入れる -->
+      <input name='word' value='<?php echo $word ?>' class='form-control col-12 col-lg-4' placeholder='料理名を入力' autofocus>　<!-- 既に単語入ってたらそれを入れる -->
 
       <span class='text-center col-12 col-lg-auto mt-lg-auto'>
       　<input type='submit' value='検索' class='btn btn-dark-red'> <!-- 検索ボタン -->
@@ -41,8 +41,11 @@ if($_GET['word']){
 
 <!-- おすすめボタン -->
 <div class='row px-3 mb-3 mx-0'>
+  <div class='mx-2 my-2 text-light'>
+    おすすめ
+  </div>
   <?php foreach($recomend_foods as $food): ?>
-  <div class='mx-2 my-'>
+  <div class='mx-2 my-1'>
     <a href='?word=<?php echo $food; ?>' class='btn btn-sm btn-outline-light'>
       <?php echo $food; ?>
     </a>
@@ -51,51 +54,62 @@ if($_GET['word']){
 </div>
 
 
+<?php if($word): ?>
 
-<?php
+  <?php
 
-// 入力データを整形
-$word = str_replace(' ', '%20', $word); // 半角スペースだとエラーになるので%20に直す
-$word = urlencode($word);
+  // 入力データを整形
+  $word = str_replace(' ', '%20', $word); // 半角スペースだとエラーになるので%20に直す
+  $word = urlencode($word);
 
-// Google画像検索 入力単語+gif
-$url = 'https://www.google.com/search?tbm=isch&q='.$word.'+gif'; 
-
-
-// リクエストなど指定
-$context = stream_context_create(array(
-  'http' => array(
-    'method' => 'GET',
-    'header' => 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.142 Safari/537.36',
-    'ignore_errors' => true // SSL化した時に必要
-  ),
-  'ssl' =>array( // SSL化した時に必要
-    'verify_peer'=>FALSE,
-    'verify_peer_name'=>FALSE,
-  ),
-));
+  // Google画像検索 入力単語+gif
+  $url = 'https://www.google.com/search?tbm=isch&q='.$word.'+gif'; 
 
 
+  // リクエストなど指定
+  $context = stream_context_create(array(
+    'http' => array(
+      'method' => 'GET',
+      'header' => 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.142 Safari/537.36',
+      'ignore_errors' => true // SSL化した時に必要
+    ),
+    'ssl' =>array( // SSL化した時に必要
+      'verify_peer'=>FALSE,
+      'verify_peer_name'=>FALSE,
+    ),
+  ));
 
-// データ取得
-$html = file_get_contents($url, false, $context); // htmlを取得 
 
-// なぜ20枚まで？
-// echo $html;
-// exit;
 
-foreach( phpQuery::newDocument($html)->find('#rso .rg_meta.notranslate') as $image ){
+  // データ取得
+  $html = file_get_contents($url, false, $context); // htmlを取得 
 
-  // $imageはxmlデータ
-  $contents = $image->textContent; // xmlからは「->」で指定
-  // $contentsはjsonデータ
-  $data = json_decode($contents, true); // 連想配列として扱う
+  // なぜ20枚まで？
+  // echo $html;
+  // exit;
 
-  $gifurl = $data['ou']; // GIF画像のURL
+  ?>
 
-  echo '<img src="'.$gifurl.'">'; // 画像表示
+  <?php foreach( phpQuery::newDocument($html)->find('#rso .rg_meta.notranslate') as $image ): ?>
 
-}
+    <?php
 
-?>
+    // $imageはxmlデータ
+    $contents = $image->textContent; // xmlからは「->」で指定
+    // $contentsはjsonデータ
+    $data = json_decode($contents, true); // 連想配列として扱う
+
+    $gifurl = $data['ou']; // GIF画像のURL
+
+    $gifurl = str_replace('http://', 'https://', $gifurl);
+
+    ?>
+
+    <div class='text-center py-5 my-4'>
+      <img src="<?php echo $gifurl; ?>">
+    </div>
+
+  <?php endforeach ?>
+
+<?php endif ?>
 
