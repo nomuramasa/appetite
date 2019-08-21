@@ -40,9 +40,9 @@ if($_GET['word']){
 <?php $recomend_foods = ['飯テロ', 'オムライス', 'ジブリ飯', '鍋', 'ステーキ', 'ハンバーグ', '肉汁溢れ', '鉄板焼き', 'チーズ', 'ピザ']; ?>
 
 <!-- おすすめボタン -->
-<div class='row px-3 mb-3'>
+<div class='row px-3 mb-3 mx-0'>
   <?php foreach($recomend_foods as $food): ?>
-  <div class='mx-2'>
+  <div class='mx-2 my-'>
     <a href='?word=<?php echo $food; ?>' class='btn btn-sm btn-outline-light'>
       <?php echo $food; ?>
     </a>
@@ -61,6 +61,7 @@ $word = urlencode($word);
 // Google画像検索 入力単語+gif
 $url = 'https://www.google.com/search?tbm=isch&q='.$word.'+gif'; 
 
+
 // リクエストなど指定
 $context = stream_context_create(array(
   'http' => array(
@@ -75,8 +76,14 @@ $context = stream_context_create(array(
 ));
 
 
+
 // データ取得
 $html = file_get_contents($url, false, $context); // htmlを取得 
+
+// なぜ20枚まで？
+// echo $html;
+// exit;
+
 foreach( phpQuery::newDocument($html)->find('#rso .rg_meta.notranslate') as $image ){
 
   // $imageはxmlデータ
